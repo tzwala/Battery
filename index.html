@@ -1,330 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Battery Indicator</title>
-    <link rel="icon" type="image/x-icon" href="/battery.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            padding: 20px;
-        }
-        
-        .container {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
-        }
-        
-        h1 {
-            color: white;
-            margin-bottom: 30px;
-            font-size: 2.5rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .battery-container {
-            position: relative;
-            margin: 30px auto;
-            width: 200px;
-            height: 400px;
-        }
-        
-        .battery-outline {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 150px;
-            height: 300px;
-            border: 8px solid rgba(255, 255, 255, 0.8);
-            border-radius: 25px;
-            background: rgba(0, 0, 0, 0.4);
-            overflow: hidden;
-        }
-        
-        .battery-cap {
-            position: absolute;
-            top: -18px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 18px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 5px 5px 0 0;
-        }
-        
-        .battery-level {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 0;
-            background: linear-gradient(to top, #4CAF50, #8BC34A);
-            transition: height 0.5s ease;
-        }
-        
-        .battery-info {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 25px;
-            margin-top: 20px;
-            color: white;
-        }
-        
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 15px 0;
-            font-size: 1.2rem;
-        }
-        
-        .status-icon {
-            font-size: 2.5rem;
-            margin: 20px 0;
-            color: #4CAF50;
-            text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
-        }
-        
-        .charging {
-            animation: pulse 1.5s infinite;
-            color: #FFD700;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 0.6; }
-            50% { opacity: 1; }
-            100% { opacity: 0.6; }
-        }
-        
-        .percentage {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3rem;
-            font-weight: bold;
-            color: white;
-            text-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
-        
-        .status-text {
-            font-size: 1.4rem;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        
-        .level-indicators {
-            position: absolute;
-            right: -40px;
-            top: 0;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 10px 0;
-        }
-        
-        .level-marker {
-            width: 20px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 2px;
-        }
-        
-        .critical {
-            color: #f44336 !important;
-            text-shadow: 0 0 10px rgba(244, 67, 54, 0.5) !important;
-        }
-        
-        .low {
-            color: #FF9800 !important;
-            text-shadow: 0 0 10px rgba(255, 152, 0, 0.5) !important;
-        }
-        
-        .disclaimer {
-            margin-top: 25px;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-            background: rgba(0, 0, 0, 0.2);
-            padding: 15px;
-            border-radius: 10px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1><i class="fas fa-battery-full"></i> Real-Time Battery Indicator</h1>
-        
-        <div class="battery-container">
-            <div class="battery-cap"></div>
-            <div class="battery-outline">
-                <div class="battery-level" id="batteryLevel"></div>
-                <div class="percentage" id="percentage">0%</div>
-            </div>
-            
-            <div class="level-indicators">
-                <div class="level-marker"></div>
-                <div class="level-marker"></div>
-                <div class="level-marker"></div>
-                <div class="level-marker"></div>
-            </div>
-        </div>
-        
-        <div class="status-icon" id="statusIcon">
-            <i class="fas fa-bolt"></i>
-        </div>
-        
-        <div class="status-text" id="statusText">Status: Checking...</div>
-        
-        <div class="battery-info">
-            <div class="info-row">
-                <span>Battery Level:</span>
-                <span id="batteryPercent">0%</span>
-            </div>
-            <div class="info-row">
-                <span>Charging Status:</span>
-                <span id="chargingStatus">Checking...</span>
-            </div>
-            <div class="info-row">
-                <span>Time Remaining:</span>
-                <span id="timeRemaining">Calculating...</span>
-            </div>
-            <div class="info-row">
-                <span>Last Updated:</span>
-                <span id="lastUpdated">--:--:--</span>
-            </div>
-        </div>
-        
-        <div class="disclaimer">
-            <p><i class="fas fa-info-circle"></i> Note: This battery indicator uses the Battery Status API. For accurate readings, please ensure you're using a supported browser and device.</p>
-        </div>
-    </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const batteryLevel = document.getElementById('batteryLevel');
-            const percentage = document.getElementById('percentage');
-            const batteryPercent = document.getElementById('batteryPercent');
-            const chargingStatus = document.getElementById('chargingStatus');
-            const timeRemaining = document.getElementById('timeRemaining');
-            const lastUpdated = document.getElementById('lastUpdated');
-            const statusIcon = document.getElementById('statusIcon');
-            const statusText = document.getElementById('statusText');
-            
-            // Update time display
-            function updateTime() {
-                const now = new Date();
-                lastUpdated.textContent = now.toLocaleTimeString();
-            }
-            
-            // Update battery UI
-            function updateBatteryUI(battery) {
-                const level = battery.level * 100;
-                const isCharging = battery.charging;
-                
-                // Update battery level visual
-                batteryLevel.style.height = `${level}%`;
-                percentage.textContent = `${Math.round(level)}%`;
-                batteryPercent.textContent = `${Math.round(level)}%`;
-                
-                // Update battery level color based on percentage
-                if (level <= 15) {
-                    batteryLevel.style.background = 'linear-gradient(to top, #f44336, #ff9800)';
-                    percentage.classList.add('critical');
-                } else if (level <= 30) {
-                    batteryLevel.style.background = 'linear-gradient(to top, #ff9800, #FFEB3B)';
-                    percentage.classList.remove('critical');
-                    percentage.classList.add('low');
-                } else {
-                    batteryLevel.style.background = 'linear-gradient(to top, #4CAF50, #8BC34A)';
-                    percentage.classList.remove('critical', 'low');
-                }
-                
-                // Update charging status
-                if (isCharging) {
-                    chargingStatus.textContent = 'Charging';
-                    statusIcon.innerHTML = '<i class="fas fa-bolt"></i>';
-                    statusIcon.classList.add('charging');
-                    statusText.textContent = 'Status: Charging';
-                    statusText.style.color = '#FFD700';
-                    
-                    // Calculate time to full charge
-                    if (battery.chargingTime !== Infinity) {
-                        const hours = Math.floor(battery.chargingTime / 3600);
-                        const minutes = Math.floor((battery.chargingTime % 3600) / 60);
-                        timeRemaining.textContent = `${hours}h ${minutes}m to full`;
-                    } else {
-                        timeRemaining.textContent = 'Calculating...';
-                    }
-                } else {
-                    chargingStatus.textContent = 'Discharging';
-                    statusIcon.innerHTML = level > 20 ? '<i class="fas fa-battery-full"></i>' : '<i class="fas fa-battery-quarter"></i>';
-                    statusIcon.classList.remove('charging');
-                    statusText.textContent = level > 20 ? 'Status: Good' : level > 10 ? 'Status: Low' : 'Status: Critical';
-                    statusText.style.color = level > 20 ? '#4CAF50' : level > 10 ? '#FF9800' : '#f44336';
-                    
-                    // Calculate time remaining
-                    if (battery.dischargingTime !== Infinity) {
-                        const hours = Math.floor(battery.dischargingTime / 3600);
-                        const minutes = Math.floor((battery.dischargingTime % 3600) / 60);
-                        timeRemaining.textContent = `${hours}h ${minutes}m remaining`;
-                    } else {
-                        timeRemaining.textContent = 'Calculating...';
-                    }
-                }
-                
-                updateTime();
-            }
-            
-            // Initialize battery API
-            if ('getBattery' in navigator) {
-                navigator.getBattery().then(battery => {
-                    // Initial update
-                    updateBatteryUI(battery);
-                    
-                    // Event listeners
-                    battery.addEventListener('chargingchange', () => updateBatteryUI(battery));
-                    battery.addEventListener('levelchange', () => updateBatteryUI(battery));
-                    battery.addEventListener('chargingtimechange', () => updateBatteryUI(battery));
-                    battery.addEventListener('dischargingtimechange', () => updateBatteryUI(battery));
-                });
-            } else {
-                // Browser doesn't support Battery API
-                statusText.textContent = 'Status: API not supported';
-                chargingStatus.textContent = 'Not Available';
-                batteryPercent.textContent = 'N/A';
-                timeRemaining.textContent = 'N/A';
-                percentage.textContent = 'N/A';
-                
-                const errorMsg = document.createElement('p');
-                errorMsg.textContent = 'Battery Status API not supported in your browser.';
-                errorMsg.style.color = '#f44336';
-                errorMsg.style.marginTop = '15px';
-                document.querySelector('.battery-info').appendChild(errorMsg);
-            }
-            
-            // Update time every second
-            setInterval(updateTime, 1000);
-        });
-    </script>
-</body>
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!--=============== REMIXICONS ===============-->
+        <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+
+        <!--=============== CSS ===============-->
+        <link rel="stylesheet" href="style.css">
+
+        <title>Live battery indicator</title>
+    </head>
+    <body>
+        <!--=============== BATTERY ===============-->
+        <section class="battery">
+            <div class="battery__card">
+                <div class="battery__data">
+                    <p class="battery__text">Battery</p>
+                    <h1 class="battery__percentage">
+                        20%
+                    </h1>
+
+                    <p class="battery__status">
+                        Low battery <i class="ri-plug-line"></i>
+                    </p>
+                </div>
+
+                <div class="battery__pill">
+                    <div class="battery__level">
+                        <div class="battery__liquid"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!--=============== MAIN JS ===============-->
+        <script src="script.js"></script>
+    </body>
 </html>
